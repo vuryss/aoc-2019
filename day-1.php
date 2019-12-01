@@ -8,13 +8,12 @@ $part1 = $part2 = 0;
 
 foreach ($input as $item) {
     $value = (int)($item / 3) - 2;
+    $module = 0;
     $part1 += $value;
-    $module = $value;
 
-    while (true) {
-        $value = (int)($value / 3) - 2;
-        if ($value <= 0) break;
+    while ($value > 0) {
         $module += $value;
+        $value = (int)($value / 3) - 2;
     }
 
     $part2 += $module;
