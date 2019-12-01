@@ -1,6 +1,6 @@
 <?php
 
-$input = trim(file_get_contents('input/day-1'));
+$input = trim(file_get_contents(__DIR__ . '/input/day-1'));
 $input = explode("\n", $input);
 $start = microtime(true);
 
