@@ -6,15 +6,12 @@ let part1 = 0, part2 = 0;
 
 input.forEach((item) => {
     let value = ~~(item / 3) - 2;
-    let module = 0;
     part1 += value;
 
     while (value > 0) {
-        module += value;
+        part2 += value;
         value = ~~(value / 3) - 2;
     }
-
-    part2 += module;
 });
 
 console.log('Part 1: ' + part1);
