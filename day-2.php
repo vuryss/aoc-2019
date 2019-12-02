@@ -2,9 +2,8 @@
 
 $input = trim(file_get_contents(__DIR__ . '/input/day-2'));
 $input = explode(",", $input);
+$input = array_map('intval', $input);
 $start = microtime(true);
-
-$part1 = $part2 = 0;
 
 $part1 = parse($input, 12, 2);
 
@@ -22,13 +21,13 @@ function parse(array $program, int $noun, int $verb): int {
     [$program[1], $program[2]] = [$noun, $verb];
 
     while ($code = $program[$pos++]) {
-        if ($code == 99) {
+        if ($code === 99) {
             return (int) $program[0];
         }
 
         $value1 = $program[$program[$pos++]];
         $value2 = $program[$program[$pos++]];
-        $program[$program[$pos++]] = $code == 1 ? $value1 + $value2 : $value1 * $value2;
+        $program[$program[$pos++]] = $code === 1 ? $value1 + $value2 : $value1 * $value2;
     }
 
     return -1;
