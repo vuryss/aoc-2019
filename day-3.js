@@ -6,44 +6,26 @@ const input = fs
 
 const start = new Date().getTime();
 
-wires = paths = [];
+let paths = [];
+let dx = {'L': -1, 'R': 1, 'D': 0, 'U':  0};
+let dy = {'L':  0, 'R': 0, 'D': 1, 'U': -1};
 
 input.forEach((wire, index) => {
     wire = wire.split(',');
-    x = y = s = 0;
+    let x = 0, y = 0, s = 0;
     paths[index] = [];
 
-    wire.forEach((move) => {
-        steps = parseInt(move.substr(1));
-
-        switch (move[0]) {
-            case 'R':
-                for (i = 0; i < steps; i++) {
-                    paths[index][y + '.' + ++x] = ++s;
-                }
-                break;
-            case 'L':
-                for (i = 0; i < steps; i++) {
-                    paths[index][y + '.' + --x] = ++s;
-                }
-                break;
-            case 'D':
-                for (i = 0; i < steps; i++) {
-                    paths[index][++y + '.' + x] = ++s;
-                }
-                break;
-            case 'U':
-                for (i = 0; i < steps; i++) {
-                    paths[index][--y + '.' + x] = ++s;
-                }
-                break;
+    wire.forEach(move => {
+        for (let i = 0, steps = parseInt(move.substr(1)); i < steps; i++) {
+            x += dx[move[0]];
+            y += dy[move[0]];
+            paths[index][y + '.' + x] = ++s;
         }
     });
 });
 
-intersections = Object.keys(paths[0]).filter({}.hasOwnProperty.bind(paths[1]));
-sums1 = [];
-sums2 = [];
+let intersections = Object.keys(paths[0]).filter({}.hasOwnProperty.bind(paths[1]));
+let sums1 = [], sums2 = [];
 
 intersections.forEach(coords => {
     [x, y] = coords.split('.');
