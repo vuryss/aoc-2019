@@ -13,8 +13,6 @@ for ($i = (int) $input[0], $to = (int) $input[1]; $i <= $to; $i++) {
         if ($s[$j] > $s[$j + 1]) continue 2;
     }
 
-    $chars = count_chars($i, 1);
-
     if (preg_match('/(\d)\1/', $s)) {
         $part1++;
 
