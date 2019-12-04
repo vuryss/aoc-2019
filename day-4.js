@@ -9,26 +9,17 @@ let part1 = 0, part2 = 0;
 
 for (let num = +input[0], max = +input[1]; num <= max; num++) {
     let sNum = num.toString();
-    let chars = sNum.split('');
-    let p1 = p2 = false;
 
-    if (sNum !== chars.sort().join('')) {
+    if (sNum !== sNum.split('').sort().join('')) {
         continue;
     }
 
-    let cCount = {};
-
-    for (let i in chars) {
-        cCount[chars[i]] = cCount[chars[i]] ? cCount[chars[i]] + 1 : 1;
+    if (sNum.match(/(?:(?:(\d?)(?!\1))|^)(\d)\2(?!\2)/)) {
+        part1++;
+        part2++;
+    } else if (sNum.match(/(\d)\1/)) {
+        part1++;
     }
-
-    for (let char in cCount) {
-        if (cCount[char] === 2) p1 = p2 = true;
-        else if (cCount[char] > 2) p1 = true;
-    }
-
-    if (p1) part1++;
-    if (p2) part2++;
 }
 
 console.log('Part 1: ' + part1);
