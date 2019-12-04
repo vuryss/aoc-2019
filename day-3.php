@@ -4,8 +4,9 @@ $input = trim(file_get_contents(__DIR__ . '/input/day-3'));
 $input = explode("\n", $input);
 $start = microtime(true);
 
-$wires = [];
-$paths = [];
+$wires = $paths = [];
+$dx = ['L' => -1, 'R' => 1, 'D' => 0, 'U' =>  0];
+$dy = ['L' =>  0, 'R' => 0, 'D' => 1, 'U' => -1];
 
 foreach ($input as $index => $wire) {
     $wire = explode(',', $wire);
@@ -13,29 +14,10 @@ foreach ($input as $index => $wire) {
 
     foreach ($wire as $move) {
         $dir = $move[0];
-        $steps = (int) substr($move, 1);
-
-        switch ($dir) {
-            case 'R':
-                for ($i = 0; $i < $steps; $i++) {
-                    $paths[$index][$y . '.' . ++$x] = ++$s;
-                }
-                break;
-            case 'L':
-                for ($i = 0; $i < $steps; $i++) {
-                    $paths[$index][$y . '.' . --$x] = ++$s;
-                }
-                break;
-            case 'D':
-                for ($i = 0; $i < $steps; $i++) {
-                    $paths[$index][++$y . '.' . $x] = ++$s;
-                }
-                break;
-            case 'U':
-                for ($i = 0; $i < $steps; $i++) {
-                    $paths[$index][--$y . '.' . $x] = ++$s;
-                }
-                break;
+        for ($i = 0, $steps = (int) substr($move, 1); $i < $steps; $i++) {
+            $x += $dx[$dir];
+            $y += $dy[$dir];
+            $paths[$index][$y . '.' . $x] = ++$s;
         }
     }
 }
