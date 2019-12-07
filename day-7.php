@@ -20,40 +20,48 @@ function combinations($input) {
     }
 }
 
-$max = 0;
+$part1 = 0;
 
 foreach (combinations([0,1,2,3,4]) as $comb) {
     $setting = str_split($comb);
-    $a = new Amplifier($input, $setting[0]);
-    $a->pushSignal(0);
-    $inpSignal = $a->amplify()->current();
+    $signal = 0;
+    for ($i = 0; $i < 5; $i++) {
+        $signal = (new Amplifier($input, $setting[$i]))->amplify($signal);
+    }
 
-    $a = new Amplifier($input, $setting[1]);
-    $a->pushSignal($inpSignal);
-    $inpSignal = $a->amplify()->current();
-
-    $a = new Amplifier($input, $setting[2]);
-    $a->pushSignal($inpSignal);
-    $inpSignal = $a->amplify()->current();
-
-    $a = new Amplifier($input, $setting[3]);
-    $a->pushSignal($inpSignal);
-    $inpSignal = $a->amplify()->current();
-
-    $a = new Amplifier($input, $setting[4]);
-    $a->pushSignal($inpSignal);
-    $result = $a->amplify()->current();
-
-    if ($result > $max) $max = $result;
+    if ($signal > $part1) $part1 = $signal;
 }
 
-echo 'Part 1: ' . $max . PHP_EOL;
+$part2 = 0;
+
+foreach (combinations([5,6,7,8,9]) as $comb) {
+    $phase = str_split($comb);
+    $a1    = new Amplifier($input, $phase[0]);
+    $a2    = new Amplifier($input, $phase[1]);
+    $a3    = new Amplifier($input, $phase[2]);
+    $a4    = new Amplifier($input, $phase[3]);
+    $a5    = new Amplifier($input, $phase[4]);
+
+    $signal = 0;
+
+    try {
+        while (true) {
+            $signal = $a5->amplify($a4->amplify($a3->amplify($a2->amplify($a1->amplify($signal)))));
+        }
+    } catch (Exception $e) {
+        if ($signal > $part2) $part2 = $signal;
+    }
+}
+
+echo 'Part 1: ' . $part1 . PHP_EOL;
+echo 'Part 2: ' . $part2 . PHP_EOL;
 
 class Amplifier
 {
     private $program = [];
     private $phase;
-    private $input = [];
+    private $input   = [];
+    private $pos     = 0;
 
     public function __construct(array $program, int $phase)
     {
@@ -67,20 +75,22 @@ class Amplifier
         $this->input[] = $signal;
     }
 
-    public function amplify() {
+    public function amplify(?int $signal = null) {
+        if (isset($signal)) $this->pushSignal($signal);
         $prg = $this->program;
-        $pos = 0;
         $numArgs = [1 => 3, 2 => 3, 3 => 1, 4 => 1, 5 => 2, 6 => 2, 7 => 3, 8 => 3, 99 => 0];
         $posArgs = [1 => 3, 2 => 3, 3 => 1, 4 => -1, 5 => -1, 6 => -1, 7 => 3, 8 => 3];
 
         while (true) {
-            $a = str_pad((string) $prg[$pos], 5, '0', STR_PAD_LEFT);
+            $a = str_pad((string) $prg[$this->pos], 5, '0', STR_PAD_LEFT);
             $opcode = (int) ($a[3] . $a[4]);
             $mode = [1 => (int) $a[2], 2 => (int) $a[1], 3 => (int) $a[0]];
             $arg = [];
 
             for ($i = 1; $i <= $numArgs[$opcode]; $i++) {
-                $arg[$i] = $mode[$i] || $posArgs[$opcode] === $i ? (int) $prg[$pos + $i] : (int) $prg[$prg[$pos + $i]];
+                $arg[$i] = $mode[$i] || $posArgs[$opcode] === $i
+                        ? (int) $prg[$this->pos + $i]
+                        : (int) $prg[$prg[$this->pos + $i]];
             }
 
             switch ($opcode) {
@@ -94,17 +104,17 @@ class Amplifier
                     $prg[$arg[1]] = array_shift($this->input);
                     break;
                 case 4:
-                    yield $arg[1];
-                    break;
+                    $this->pos += $numArgs[$opcode] + 1;
+                    return $arg[1];
                 case 5:
                     if ($arg[1] !== 0) {
-                        $pos = $arg[2] - ($numArgs[$opcode] + 1);
+                        $this->pos = $arg[2] - ($numArgs[$opcode] + 1);
                         break;
                     }
                     break;
                 case 6:
                     if ($arg[1] === 0) {
-                        $pos = $arg[2] - ($numArgs[$opcode] + 1);
+                        $this->pos = $arg[2] - ($numArgs[$opcode] + 1);
                     }
                     break;
                 case 7:
@@ -118,70 +128,9 @@ class Amplifier
                     throw new Exception();
             }
 
-            $pos += $numArgs[$opcode] + 1;
+            $this->pos += $numArgs[$opcode] + 1;
         }
     }
 }
-
-$results = [];
-
-foreach (combinations([5,6,7,8,9]) as $comb) {
-    $phase = str_split($comb);
-    $a1    = new Amplifier($input, $phase[0]);
-    $a2    = new Amplifier($input, $phase[1]);
-    $a3    = new Amplifier($input, $phase[2]);
-    $a4    = new Amplifier($input, $phase[3]);
-    $a5    = new Amplifier($input, $phase[4]);
-
-    $signal = 0;
-
-    try {
-        $a1->pushSignal($signal);
-        $generator1 = $a1->amplify();
-        $signal     = $generator1->current();
-
-        $a2->pushSignal($signal);
-        $generator2 = $a2->amplify();
-        $signal     = $generator2->current();
-
-        $a3->pushSignal($signal);
-        $generator3 = $a3->amplify();
-        $signal     = $generator3->current();
-
-        $a4->pushSignal($signal);
-        $generator4 = $a4->amplify();
-        $signal     = $generator4->current();
-
-        $a5->pushSignal($signal);
-        $generator5 = $a5->amplify();
-        $signal     = $generator5->current();
-
-        while (true) {
-            $a1->pushSignal($signal);
-            $generator1->next();;
-            $signal = $generator1->current();
-
-            $a2->pushSignal($signal);
-            $generator2->next();
-            $signal = $generator2->current();
-
-            $a3->pushSignal($signal);
-            $generator3->next();
-            $signal = $generator3->current();
-
-            $a4->pushSignal($signal);
-            $generator4->next();
-            $signal = $generator4->current();
-
-            $a5->pushSignal($signal);
-            $generator5->next();
-            $signal = $generator5->current();
-        }
-    } catch (Exception $e) {
-        $results[] = $signal;
-    }
-}
-
-echo 'Part 2: ' . max($results) . PHP_EOL;
 
 echo 'Finished in ' . (microtime(true) - $start) . PHP_EOL;
