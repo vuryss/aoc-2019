@@ -1,28 +1,14 @@
 <?php
 
+require_once __DIR__ . '/utils.php';
+
 $input = trim(file_get_contents(__DIR__ . '/input/day-7'));
 $input = explode(',', $input);
 $start = microtime(true);
 
-function combinations($input) {
-    if (count($input) === 1) {
-        yield current($input);
-        return;
-    }
-
-    foreach ($input as $key => $value) {
-        $copy = $input;
-        unset($copy[$key]);
-
-        foreach (combinations($copy) as $subCombination) {
-            yield $value . $subCombination;
-        }
-    }
-}
-
 $part1 = 0;
 
-foreach (combinations([0,1,2,3,4]) as $comb) {
+foreach (permutations([0,1,2,3,4]) as $comb) {
     $setting = str_split($comb);
     $signal = 0;
     for ($i = 0; $i < 5; $i++) {
@@ -34,7 +20,7 @@ foreach (combinations([0,1,2,3,4]) as $comb) {
 
 $part2 = 0;
 
-foreach (combinations([5,6,7,8,9]) as $comb) {
+foreach (permutations([5,6,7,8,9]) as $comb) {
     $phase = str_split($comb);
     $a1    = new Amplifier($input, $phase[0]);
     $a2    = new Amplifier($input, $phase[1]);
@@ -70,15 +56,10 @@ class Amplifier
         $this->input[] = $this->phase;
     }
 
-    public function pushSignal(int $signal)
-    {
-        $this->input[] = $signal;
-    }
-
     public function amplify(?int $signal = null) {
-        if (isset($signal)) $this->pushSignal($signal);
+        if (isset($signal)) $this->input[] = $signal;
         $prg = $this->program;
-        $numArgs = [1 => 3, 2 => 3, 3 => 1, 4 => 1, 5 => 2, 6 => 2, 7 => 3, 8 => 3, 99 => 0];
+        $numArgs = [1 => 3, 2 => 3, 3 => 1, 4 => 1,  5 => 2,  6 => 2,  7 => 3, 8 => 3, 99 => 0];
         $posArgs = [1 => 3, 2 => 3, 3 => 1, 4 => -1, 5 => -1, 6 => -1, 7 => 3, 8 => 3];
 
         while (true) {
