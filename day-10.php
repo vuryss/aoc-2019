@@ -1,74 +1,10 @@
 <?php
 
-//$input = trim(file_get_contents(__DIR__ . '/input/day-10'));
-$input = '#...##.####.#.......#.##..##.#.
-#.##.#..#..#...##..##.##.#.....
-#..#####.#......#..#....#.###.#
-...#.#.#...#..#.....#..#..#.#..
-.#.....##..#...#..#.#...##.....
-##.....#..........##..#......##
-.##..##.#.#....##..##.......#..
-#.##.##....###..#...##...##....
-##.#.#............##..#...##..#
-###..##.###.....#.##...####....
-...##..#...##...##..#.#..#...#.
-..#.#.##.#.#.#####.#....####.#.
-#......###.##....#...#...#...##
-.....#...#.#.#.#....#...#......
-#..#.#.#..#....#..#...#..#..##.
-#.....#..##.....#...###..#..#.#
-.....####.#..#...##..#..#..#..#
-..#.....#.#........#.#.##..####
-.#.....##..#.##.....#...###....
-###.###....#..#..#.....#####...
-#..##.##..##.#.#....#.#......#.
-.#....#.##..#.#.#.......##.....
-##.##...#...#....###.#....#....
-.....#.######.#.#..#..#.#.....#
-.#..#.##.#....#.##..#.#...##..#
-.##.###..#..#..#.###...#####.#.
-#...#...........#.....#.......#
-#....##.#.#..##...#..####...#..
-#.####......#####.....#.##..#..
-.#...#....#...##..##.#.#......#
-#..###.....##.#.......#.##...##';
-//$input = '.#..##.###...#######
-//##.############..##.
-//.#.######.########.#
-//.###.#######.####.#.
-//#####.##.#.##.###.##
-//..#####..#.#########
-//####################
-//#.####....###.#.#.##
-//##.#################
-//#####.##.###..####..
-//..######..##.#######
-//####.##.####...##..#
-//.#####..#.######.###
-//##...#.##########...
-//#.##########.#######
-//.####.#.###.###.#.##
-//....##.##.###..#####
-//.#.#.###########.###
-//#.#.#.#####.####.###
-//###.##.####.##.#..##';
-//$input = '......#.#.
-//#..#.#....
-//..#######.
-//.#.#.###..
-//.#..#.....
-//..#....#.#
-//#..#....#.
-//.##.#..###
-//##...#..#.
-//.#....####';
-//$input = '.#..#
-//.....
-//#####
-//....#
-//...##';
+$input = trim(file_get_contents(__DIR__ . '/input/day-10'));
 $input = explode("\n", $input);
 $start = microtime(true);
+
+$part1 = $part2 = 0;
 
 $map = [];
 $maxY = count($input);
@@ -83,27 +19,24 @@ foreach ($input as $y => $line) {
     }
 }
 
-//detectOthers($map, 1, 2);
+detectOthers($map, 1, 2);
 
 $positions = [];
 
 foreach ($map as $x => $yLine) {
     foreach ($yLine as $y => $item) {
         $positions[$x . '.' . $y] = detectOthers($map, $x, $y);
-        //echo 'Position ' . $x . ',' . $y . ' detects: ' . detectOthers($map, $x, $y) . PHP_EOL;
-        //break 2;
     }
 }
 
-$max = max($positions);
-$maxPos = array_search($max, $positions);
+$part1 = max($positions);
+$maxPos = array_search($part1, $positions);
 [$foundX, $foundY] = explode('.', $maxPos);
 
+$part2 = killOthers($map, $foundX, $foundY);
 
-echo 'Max: ' . max($positions) . PHP_EOL;
-echo 'Position: ' . $maxPos . PHP_EOL;
-
-killOthers($map, $foundX, $foundY);
+echo 'Part 1: ' . $part1 . PHP_EOL;
+echo 'Part 2: ' . $part2 . PHP_EOL;
 
 function killOthers($map, $x, $y) {
     $lines = [];
@@ -122,8 +55,8 @@ function killOthers($map, $x, $y) {
 
     foreach ($lines as $key => $line) {
         if ($line[0] >= 0) {
-            if ($line[1] > 0) {
-                $angle = bcdiv($line[0], $line[1], 3);
+            if ($line[1] < 0) {
+                $angle = atan(bcdiv($line[0], abs($line[1]), 3));
                 // < 90
             } elseif ($line[1] === 0) {
                 $angle = M_PI_2;
@@ -133,22 +66,46 @@ function killOthers($map, $x, $y) {
                     $angle = M_PI;
                 } else {
                     // > 90 < 180
-                    $angle = M_PI_2 + bcdiv(abs($line[1]), $line[0], 3);
+                    $angle = M_PI_2 + atan(bcdiv($line[1], $line[0], 3));
                 }
             }
         } else {
-            if ($line[1] < 0) {
-                $angle = M_PI + bcdiv(abs($line[0]), abs($line[1]), 3);
+            if ($line[1] > 0) {
+                $angle = M_PI + atan(bcdiv(abs($line[0]), $line[1], 3));
                 // > 180 < 270
             } elseif ($line[1] === 0) {
                 $angle = M_PI + M_PI_2;
             } else {
-                $angle = M_PI + M_PI_2 + bcdiv($line[1], abs($line[0]), 3);
+                $angle = M_PI + M_PI_2 + atan(bcdiv(abs($line[1]), abs($line[0]), 3));
                 // > 270 < 360
             }
         }
 
-        echo 'Angle: ' . $angle . PHP_EOL;
+        $dist = abs($line[0]) + abs($line[1]);
+
+        $map[(string) $angle][$dist] = [$line[0] + $x, $line[1] + $y];
+    }
+
+    ksort($map);
+
+    foreach ($map as $rad => $items) {
+        ksort($items);
+        $map[$rad] = $items;
+    }
+
+    $counter = 0;
+
+    while (true) {
+        foreach ($map as $rad => $items) {
+            $counter++;
+            $item = array_shift($items);
+            if ($counter === 200) {
+                return 100 * $item[0] + $item[1];
+            }
+            if (empty($items)) {
+                unset($map[$rad]);
+            }
+        }
     }
 }
 
@@ -212,8 +169,6 @@ function detectOthers($map, $x, $y)
             }
         }
     }
-
-    echo count($lines) . PHP_EOL;
 
     return count($lines);
 }
