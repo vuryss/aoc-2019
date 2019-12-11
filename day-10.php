@@ -11,21 +11,28 @@ $maxY = count($input);
 $maxX = strlen($input[0]);
 
 foreach ($input as $y => $line) {
-    $line = str_split($line);
-    foreach ($line as $x => $item) {
+    foreach (str_split($line) as $x => $item) {
         if ($item === '#') {
             $map[$x][$y] = $item;
         }
     }
 }
 
-detectOthers($map, 1, 2);
-
 $positions = [];
 
 foreach ($map as $x => $yLine) {
     foreach ($yLine as $y => $item) {
-        $positions[$x . '.' . $y] = detectOthers($map, $x, $y);
+        $angles = [];
+
+        foreach ($map as $x1 => $yLine) {
+            foreach ($yLine as $y1 => $item) {
+                if ($x1 === $x && $y1 === $y) continue;
+
+                $angles[(string) atan2($y - $y1, $x1 - $x)] = true;
+            }
+        }
+
+        $positions[$x . '.' . $y] = count($angles);
     }
 }
 
@@ -33,12 +40,12 @@ $part1 = max($positions);
 $maxPos = array_search($part1, $positions);
 [$foundX, $foundY] = explode('.', $maxPos);
 
-$part2 = killOthers($map, $foundX, $foundY);
+$part2 = destroyAsteroids($map, $foundX, $foundY);
 
 echo 'Part 1: ' . $part1 . PHP_EOL;
 echo 'Part 2: ' . $part2 . PHP_EOL;
 
-function killOthers($map, $x, $y) {
+function destroyAsteroids($map, $x, $y) {
     $angles = [];
 
     foreach ($map as $x1 => $yLine) {
@@ -77,23 +84,5 @@ function killOthers($map, $x, $y) {
         }
     }
 }
-
-function detectOthers($map, $x, $y)
-{
-    $angles = [];
-
-    foreach ($map as $x1 => $yLine) {
-        foreach ($yLine as $y1 => $item) {
-            if ($x1 === $x && $y1 === $y) {
-                continue;
-            }
-
-            $angles[(string) atan2($y - $y1, $x1 - $x)] = true;
-        }
-    }
-
-    return count($angles);
-}
-
 
 echo 'Finished in ' . (microtime(true) - $start) . PHP_EOL;
