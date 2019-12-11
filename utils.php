@@ -23,9 +23,10 @@ class IntCodeParser
     private $pos     = 0;
     private $relPos  = 0;
 
-    public function __construct(array $program)
+    public function __construct(array $program, ...$input)
     {
         $this->program = $program;
+        array_push($this->input, ...$input);
     }
 
     public function input(int $input)

@@ -6,15 +6,13 @@ $input = trim(file_get_contents(__DIR__ . '/input/day-9'));
 $input = explode(',', $input);
 $start = microtime(true);
 
-$comp = new IntCodeParser($input);
-$comp->input(1);
+$comp = new IntCodeParser($input, 1);
 
 echo 'Part 1: ';
 while ($num = $comp->output()) echo $num;
 echo PHP_EOL;
 
-$comp = new IntCodeParser($input);
-$comp->input(2);
+$comp = new IntCodeParser($input, 2);
 
 echo 'Part 2: ';
 while ($num = $comp->output()) echo $num;
