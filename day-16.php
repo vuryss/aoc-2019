@@ -10,15 +10,15 @@ $len = strlen($input);
 $copy = str_split($input);
 for ($p = 0; $p < 100; $p++) {
     $output = [];
-    for ($i = 0; $i < $len; $i++) {
-        $result = 0;
-        foreach (getPattern($pattern, $i + 1) as $key => $mult) {
-            if (!isset($copy[$key])) break;
-            $result += $copy[$key] * $mult;
+    for ($i = $len; $i >= 1; $i--) {
+        $sum = 0;
+        for ($j = $len - 1, $to = $i - 1; $j >= $to; $j--) {
+            $delta = (int) (($j + 1) / $i) % 4;
+            $sum += $copy[$j] * $pattern[$delta];
         }
-        $output[] = substr((string)$result, -1);
+        $output[] = abs($sum) % 10;
     }
-    $copy = $output;
+    $copy = array_reverse($output);
 }
 
 echo 'Part 1: ' . implode('', array_slice($copy, 0, 8)). PHP_EOL;
@@ -45,24 +45,5 @@ ksort($input);
 $result = implode('', array_slice($input, 0, 8));
 
 echo 'Part 2: ' . $result . PHP_EOL;
-
-function getPattern(array $pattern, int $output) {
-    $first = true;
-    $key = $output - 1;
-
-    while (true) {
-        foreach ($pattern as $num) {
-            for ($i = 0; $i < $output; $i++) {
-                if ($first && $num === 0) {
-                    continue;
-                }
-                $first = false;
-
-                yield $key => $num;
-                $key++;
-            }
-        }
-    }
-}
 
 echo 'Finished in ' . (microtime(true) - $start) . PHP_EOL;
