@@ -24,15 +24,13 @@ for ($p = 0; $p < 100; $p++) {
 echo 'Part 1: ' . implode('', array_slice($copy, 0, 8)). PHP_EOL;
 
 // Part 2
-$input = str_repeat($input, 10000);
+$offset = (int) substr($input, 0, 7);
+$input = substr(str_repeat($input, 10000), $offset);
 $input = str_split($input);
-$offset = (int) implode('', array_slice($input, 0, 7));
-$input = array_slice($input, $offset);
 $len = count($input);
 
 for ($p = 0; $p < 100; $p++) {
-    $result = [];
-    $result[$len] = 0;
+    $result = [$len => 0];
 
     for ($i = $len - 1; $i >= 0; $i--) {
         $result[$i] = ($input[$i] + $result[$i + 1]) % 10;
@@ -41,9 +39,8 @@ for ($p = 0; $p < 100; $p++) {
     $input = $result;
 }
 
-ksort($input);
-$result = implode('', array_slice($input, 0, 8));
+$input = array_reverse(array_slice($input, -8));
 
-echo 'Part 2: ' . $result . PHP_EOL;
+echo 'Part 2: ' . implode('', $input) . PHP_EOL;
 
 echo 'Finished in ' . (microtime(true) - $start) . PHP_EOL;
