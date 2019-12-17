@@ -161,11 +161,7 @@ foreach ($subCombinations as $subCombination) {
 $comp->input(ord('n'));
 $comp->input(10);
 
-while (true) {
-    $output = $comp->output();
-
-    if ($output === null) break;
-
+while ($output = $comp->output()) {
     if ($output > 255) {
         echo 'Part 2: ' . $output . PHP_EOL;
     }
