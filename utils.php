@@ -76,7 +76,7 @@ class IntCodeParser
                         $wantInput = true;
                         break;
                     }
-                    
+
                     $prg[$arg[1]] = array_shift($this->input);
                     break;
                 case 4:
