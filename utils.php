@@ -38,6 +38,7 @@ class IntCodeParser
         $prg = &$this->program;
         $numArgs = [1 => 3, 2 => 3, 3 => 1, 4 => 1,  5 => 2,  6 => 2,  7 => 3, 8 => 3, 9 => 1, 99 => 0];
         $posArgs = [1 => 3, 2 => 3, 3 => 1, 4 => -1, 5 => -1, 6 => -1, 7 => 3, 8 => 3, 9 => -1];
+        $wantInput = false;
 
         while (true) {
             $a = str_pad((string) $prg[$this->pos], 5, '0', STR_PAD_LEFT);
@@ -66,6 +67,16 @@ class IntCodeParser
                     $prg[$arg[3]] = (int) $arg[1] * (int) $arg[2];
                     break;
                 case 3:
+                    if ($wantInput) {
+                        return null;
+                    }
+
+                    if (empty($this->input)) {
+                        $prg[$arg[1]] = -1;
+                        $wantInput = true;
+                        break;
+                    }
+                    
                     $prg[$arg[1]] = array_shift($this->input);
                     break;
                 case 4:
